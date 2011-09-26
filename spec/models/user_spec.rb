@@ -90,6 +90,9 @@ describe User do
       @user.encrypted_password.should_not be_blank
     end
 
+    it 'should encrypt passwords' do
+      @user.encrypted_password.should_not == @user.password
+    end
 
     describe 'has_password? method' do
       it 'should be true if the passwords match' do
@@ -98,6 +101,21 @@ describe User do
 
       it 'should be false if the passwords do not match' do
         @user.has_password?('invalid').should be_false
+      end
+    end
+    
+    
+    describe 'authenticate method' do
+      it 'should return nil if password does not match' do
+        User.authenticate(@attr[:email], 'bogus').should be_nil
+      end
+
+      it 'should return nil if email does not exist' do
+        User.authenticate('none@x.com', @attr[:password]).should be_nil
+      end
+
+      it 'should return user if valid email and password' do
+        User.authenticate(@attr[:email], @attr[:password]).should == @user
       end
     end
   end
