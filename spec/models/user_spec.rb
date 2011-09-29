@@ -103,8 +103,7 @@ describe User do
         @user.has_password?('invalid').should be_false
       end
     end
-    
-    
+        
     describe 'authenticate method' do
       it 'should return nil if password does not match' do
         User.authenticate(@attr[:email], 'bogus').should be_nil
@@ -116,6 +115,20 @@ describe User do
 
       it 'should return user if valid email and password' do
         User.authenticate(@attr[:email], @attr[:password]).should == @user
+      end
+    end
+
+    describe 'authenticate with salt method' do
+      it 'should return nil if salt does not match' do
+        User.authenticate_with_salt(@user[:id], 'bogus').should be_nil
+      end
+
+      it 'should return nil if id does not exist' do
+        User.authenticate_with_salt(-1, @user.salt).should be_nil
+      end
+
+      it 'should return user if valid id and salt' do
+        User.authenticate_with_salt(@user.id, @user.salt).should == @user
       end
     end
   end
