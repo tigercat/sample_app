@@ -6,10 +6,9 @@ gem 'rails', '3.1.0'
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 
 gem 'pg'
-
-
 gem 'therubyracer'
 gem 'gravatar_image_tag'
+gem 'will_paginate'
 
 
 
@@ -35,12 +34,13 @@ gem 'jquery-rails'
 
 group :development do
   gem 'rspec-rails'
+  gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git'
+#  gem 'annotate'
+  gem 'faker'
 end
 
 group :production do
   # gems specifically for Heroku go here
-  gem 'annotate', :git => 'git://github.com/ctran/annotate_models.git'
-#  gem 'annotate'
 end
 
 
