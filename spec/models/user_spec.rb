@@ -91,8 +91,7 @@ describe User do
     end
 
     it 'should encrypt passwords' do
-      # why does this fail!!!!???
-      @user.password_digest.should_not == @attr[:password]
+      @user.password_digest.to_s.should_not == @attr[:password]
     end
 
     describe 'has_password? method' do
