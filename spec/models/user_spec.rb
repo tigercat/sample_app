@@ -82,29 +82,40 @@ describe User do
       @user = User.create!(@attr)
     end
     
-    it 'should have an encrypted password attribute' do
-      @user.should respond_to(:encrypted_password)
+    it 'should have a password_digest attribute' do
+      @user.should respond_to(:password_digest)
     end
     
-    it 'should set the encrypted_password attribute' do
-      @user.encrypted_password.should_not be_blank
+    it 'should set the password_digest attribute' do
+      @user.password_digest.should_not be_blank
     end
 
     it 'should encrypt passwords' do
-      @user.encrypted_password.should_not == @user.password
+      # why does this fail!!!!???
+      @user.password_digest.should_not == @attr[:password]
     end
 
     describe 'has_password? method' do
       it 'should be true if the passwords match' do
-        @user.has_password?(@attr[:password]).should be_true
+        @user.has_password?(@attr[:password]).should == true
       end
 
       it 'should be false if the passwords do not match' do
         @user.has_password?('invalid').should be_false
       end
     end
-        
+
     describe 'authenticate method' do
+      it 'should return false if password does not match' do
+        @user.authenticate('bogus').should be_false
+      end
+
+      it 'should return user if valid password' do
+        @user.authenticate(@attr[:password]).should == @user
+      end
+    end
+        
+    describe 'User authenticate method' do
       it 'should return nil if password does not match' do
         User.authenticate(@attr[:email], 'bogus').should be_nil
       end
@@ -118,19 +129,6 @@ describe User do
       end
     end
 
-    describe 'authenticate with salt method' do
-      it 'should return nil if salt does not match' do
-        User.authenticate_with_salt(@user[:id], 'bogus').should be_nil
-      end
-
-      it 'should return nil if id does not exist' do
-        User.authenticate_with_salt(-1, @user.salt).should be_nil
-      end
-
-      it 'should return user if valid id and salt' do
-        User.authenticate_with_salt(@user.id, @user.salt).should == @user
-      end
-    end
   end
   
   describe "micropost associations" do
@@ -252,13 +250,12 @@ end
 #
 # Table name: users
 #
-#  id                 :integer         not null, primary key
-#  name               :string(255)
-#  email              :string(255)
-#  created_at         :datetime
-#  updated_at         :datetime
-#  encrypted_password :string(255)
-#  salt               :string(255)
-#  admin              :boolean         default(FALSE)
+#  id              :integer         not null, primary key
+#  name            :string(255)
+#  email           :string(255)
+#  created_at      :datetime
+#  updated_at      :datetime
+#  admin           :boolean         default(FALSE)
+#  password_digest :string(255)
 #
 

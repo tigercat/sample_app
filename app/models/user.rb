@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
-  attr_accessor :password
+#  attr_accessor :password
   attr_accessible :name, :email, :password, :password_confirmation
+  has_secure_password
   
   has_many :microposts, :dependent => :destroy
   has_many :relationships, :foreign_key => "follower_id",
@@ -20,27 +21,28 @@ class User < ActiveRecord::Base
     :format => {:with => email_regex},
     :uniqueness => {:case_sensitive => false}
   validates :password,
-    :presence => true,
-    :confirmation => true,
+#    :presence => true,
+#    :confirmation => true,
     :length => {:within => 6..40}
 
-  before_save :encrypt_password
+#  before_save :encrypt_password
   
   
   def has_password?(submitted_password)
-    encrypt(submitted_password) == encrypted_password
+    !!authenticate(submitted_password)
+#    encrypt(submitted_password) == encrypted_password
   end
   
   # return user given email and password.
   # return nil, if email or password isn't right
   def self.authenticate(email, password)
-    (user = find_by_email(email)) && user.has_password?(password) ? user : nil
+    (user = find_by_email(email)) && user.authenticate(password) ? user : nil
   end
 
-  def self.authenticate_with_salt(id, cookie_salt)
-    user = find_by_id(id)
-    (user && user.salt == cookie_salt) ? user : nil
-  end
+#  def self.authenticate_with_salt(id, cookie_salt)
+#    user = find_by_id(id)
+#    (user && user.salt == cookie_salt) ? user : nil
+#  end
 
   def following?(followed)
     relationships.find_by_followed_id(followed)
@@ -59,7 +61,8 @@ class User < ActiveRecord::Base
   end
 
   private
-  
+
+=begin  
     def encrypt_password
       self.salt = make_salt() if new_record?
       self.encrypted_password = encrypt(password)
@@ -76,18 +79,18 @@ class User < ActiveRecord::Base
     def secure_hash(string)
       Digest::SHA2.hexdigest(string)
     end
+=end
 end
 # == Schema Information
 #
 # Table name: users
 #
-#  id                 :integer         not null, primary key
-#  name               :string(255)
-#  email              :string(255)
-#  created_at         :datetime
-#  updated_at         :datetime
-#  encrypted_password :string(255)
-#  salt               :string(255)
-#  admin              :boolean         default(FALSE)
+#  id              :integer         not null, primary key
+#  name            :string(255)
+#  email           :string(255)
+#  created_at      :datetime
+#  updated_at      :datetime
+#  admin           :boolean         default(FALSE)
+#  password_digest :string(255)
 #
 

@@ -36,6 +36,12 @@ describe SessionsController do
         post :create, :session => @attr
         flash.now[:error].should =~ /invalid/i
       end
+      
+      it "should know if a user is the current user" do
+        post :create, :session => @attr
+        controller.current_user?(controller.current_user).should_not be_true
+      end
+      
     end
     
     describe "with valid email and password" do
@@ -54,6 +60,27 @@ describe SessionsController do
         post :create, :session => @attr
         response.should redirect_to(user_path(@user))
       end
+      
+      it "should be able to find the current user if not initialized" do
+        post :create, :session => @attr
+        controller.current_user = nil
+        controller.current_user.should_not be_nil
+      end
+      
+      it "should be able to sign out a user" do
+        post :create, :session => @attr
+        controller.sign_out
+        controller.current_user.should be_nil
+        controller.should_not be_signed_in
+      end
+      
+      it "should know if a user is the current user" do
+        @user2 = Factory(:user, :email => Factory.next(:email))
+        post :create, :session => @attr
+        controller.current_user?(controller.current_user).should be_true
+        controller.current_user?(@user2).should be_false
+      end
+      
     end
     
     describe "DELETE 'destroy'" do
